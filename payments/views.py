@@ -1,4 +1,7 @@
 from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.exceptions import NotFound
 from .models import *
 from .serializers import *
 from rest_framework.viewsets import ModelViewSet
@@ -28,9 +31,15 @@ class PayeeViewSet(ModelViewSet):
         return super().get_serializer_class()
     
 class PaymentViewSet(ModelViewSet):
-    queryset = Payment.objects.all()
+    try:
+        queryset = Payment.objects.all()
+    except Payment.DoesNotExist:
+        raise NotFound({"success": False,
+                         "error_code": "payment not found",
+                         }, status = status.HTTP_404_NOT_FOUND)
     
     def get_serializer_class(self):
         if self.action == "retrieve":
-            return
+            return PaymentSerializerRetrieve
+        return PaymentSerializer
     

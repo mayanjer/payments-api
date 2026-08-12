@@ -5,7 +5,7 @@ from .models import *
 class PayerSerializer(ModelSerializer):  
     class Meta:
         model = Payer
-        fields = ("first_name", "last_name")    
+        fields = ("first_name", "last_name", "user_name")    
 class PayerSerializerGet(ModelSerializer):
     class Meta:
         model = Payer
@@ -15,7 +15,7 @@ class PayerSerializerGet(ModelSerializer):
 class PayeeSerializer(ModelSerializer):
     class Meta:
         model = Payee
-        fields = ("first_name", "last_name") 
+        fields = ("first_name", "last_name", "user_name") 
 class PayeeSerializerGet(ModelSerializer):
     class Meta:
         model = Payee
@@ -27,6 +27,8 @@ class PaymentSerializer(ModelSerializer):
         model = Payment
         fields = ("__all__")
 class PaymentSerializerRetrieve(ModelSerializer):
+    payer = PayerSerializer(read_only=True)
+    payee = PayeeSerializer(read_only=True)
     class Meta:
         model = Payment
-        fields = ("")
+        fields = ("__all__")
