@@ -7,7 +7,7 @@ from .models import *
 from .serializers import *
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
-import json
+from django.db.models import Count
 
 # Create your views here.
 
@@ -21,6 +21,23 @@ class PayerViewSet(ModelViewSet):
         elif self.action == "create":
             return PayerSerializer
         # return super().get_serializer_class()
+        
+    @action(detail = True, methods = ["get"])
+    def history(self, request, pk):
+        try:
+            payer = Payer.objects.get(pk = pk)
+        except Payer.DoesNotExist:
+            return Response({"success":False, "error_message":f"Payer with id {pk} does not exist"}, status = status.HTTP_404_NOT_FOUND)
+        payments = Payment.objects.filter(payer = payer).values("payment_status").annotate(total_success=Count("payment_status") ,status_label = Case(
+            When(payment_status = "SUCCESS", then=Value("total_success")),
+            default = Value("Unknown")
+        ))
+        
+        
+        
+        return Response({f"payments for {payer.user_name}":payments}, status = status.HTTP_200_OK)
+        
+        
     
 class PayeeViewSet(ModelViewSet):
     
@@ -56,3 +73,5 @@ class PaymentViewSet(ModelViewSet):
         
         headers = self.get_success_headers(serializer.data)
         return super().create(request, *args, **kwargs)
+    
+   
