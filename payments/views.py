@@ -28,14 +28,12 @@ class PayerViewSet(ModelViewSet):
             payer = Payer.objects.get(pk = pk)
         except Payer.DoesNotExist:
             return Response({"success":False, "error_message":f"Payer with id {pk} does not exist"}, status = status.HTTP_404_NOT_FOUND)
-        payments = Payment.objects.filter(payer = payer).values("payment_status").annotate(total_success=Count("payment_status") ,status_label = Case(
-            When(payment_status = "SUCCESS", then=Value("total_success")),
-            default = Value("Unknown")
-        ))
+        payments = Payment.objects.filter(payer = payer).values("payment_status").annotate(total=Count("payment_status"))
+        
+        recent_transactions = Payment.objects.filter(payer=payer).values("payment_method", "payment_status", "payment_time").order_by("-payment_time")
         
         
-        
-        return Response({f"payments for {payer.user_name}":payments}, status = status.HTTP_200_OK)
+        return Response({f"payments for {payer.user_name}":payments, "recent_transactions":recent_transactions}, status = status.HTTP_200_OK)
         
         
     
