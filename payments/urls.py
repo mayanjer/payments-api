@@ -8,6 +8,7 @@ router = DefaultRouter()
 router.register(r'payers', PayerViewSet, basename = "payers")
 router.register(r'payees', PayeeViewSet, basename = "payees")
 router.register(r'payments', PaymentViewSet, basename = "payments")
+router.register(r'users', UserViewSet, basename = "users")
 
 urlpatterns = [
     path('admin/', admin.site.urls),

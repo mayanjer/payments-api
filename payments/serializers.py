@@ -2,10 +2,15 @@ from rest_framework.serializers import ModelSerializer
 from .models import *
 
 # payer serializers
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "username")
+
 class PayerSerializer(ModelSerializer):  
     class Meta:
         model = Payer
-        fields = ("first_name", "last_name", "user_name")    
+        fields = ("user__first_name", "user__last_name", "user__user_name")    
 class PayerSerializerGet(ModelSerializer):
     class Meta:
         model = Payer
@@ -15,7 +20,7 @@ class PayerSerializerGet(ModelSerializer):
 class PayeeSerializer(ModelSerializer):
     class Meta:
         model = Payee
-        fields = ("first_name", "last_name", "user_name") 
+        fields = ("user__first_name", "user__last_name", "user_name") 
 class PayeeSerializerGet(ModelSerializer):
     class Meta:
         model = Payee

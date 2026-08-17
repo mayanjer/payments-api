@@ -10,6 +10,14 @@ from rest_framework.decorators import action
 from django.db.models import Count
 
 # Create your views here.
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+      
+    @action(detail=False, methods=["get"])
+    def search(self, request):
+        query_param = request.query_params
+        return Response({"params": query_param}, status = status.HTTP_200_OK)
 
 class PayerViewSet(ModelViewSet):
     
@@ -33,10 +41,8 @@ class PayerViewSet(ModelViewSet):
         recent_transactions = Payment.objects.filter(payer=payer).values("payment_method", "payment_status", "payment_time").order_by("-payment_time")
         
         
-        return Response({f"payments for {payer.user_name}":payments, "recent_transactions":recent_transactions}, status = status.HTTP_200_OK)
+        return Response({f"payments for {payer.user.username}":payments, "recent_transactions":recent_transactions}, status = status.HTTP_200_OK)
         
-        
-    
 class PayeeViewSet(ModelViewSet):
     
     queryset = Payee.objects.all()
