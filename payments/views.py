@@ -17,7 +17,25 @@ class UserViewSet(ModelViewSet):
     @action(detail=False, methods=["get"])
     def search(self, request):
         query_param = request.query_params
-        return Response({"params": query_param}, status = status.HTTP_200_OK)
+        if not query_param:
+            return Response({"error_message": "missing query parameters in the URL"}, status = status.HTTP_204_NO_CONTENT)
+        
+        user_obj = User.objects.filter(first_name__iexact = query_param.get("first_name")).values("first_name")[:1]
+        is_payer = Payer.objects.filter(user__first_name=user_obj).values("user__first_name")
+        if not is_payer:
+            is_payee = Payee.objects.filter(first_name__iexact = user_obj)
+        return Response({"obj": is_payer}, status = status.HTTP_200_OK)
+        # try:
+        #     obj=Payer.objects.filter(user__first_name__icontains=query_param['q']).values("user__first_name", "user__last_name")
+            
+        #     if obj:
+        #     elif not obj:
+        #         obj=Payee.objects.filter(user__first_name=query_param['q'])
+                
+        # except Payer.DoesNotExist:
+        #     return Response({"error_message":"Object doesnt exist"})
+        
+        
 
 class PayerViewSet(ModelViewSet):
     
